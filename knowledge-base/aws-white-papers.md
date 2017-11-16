@@ -1,0 +1,138 @@
+# AWS Whitepapers
+
+## Security Whitepaper
+
+- Link: https://d0.awsstatic.com/whitepapers/aws-security-whitepaper.pdf
+-   Shared Security Model   description.
+  - AWS responsibilities:
+    - Securing underlying infrastructure that supports the cloud.
+      - Hardware, Software, Networking and Facilities.
+    - Responsible for managed services too!
+      -   RDS  ,   Elasticsearch  ,   DynamoDB   etc.
+  - Your responsibility:
+    - Securing everything that you are putting on the cloud or connect to the cloud.
+      - IaaS - is your responsibility (  EC2  ,   VPC   and   S3  ) - IAM also.
+      - Especially securing transmission and communication (  SSL   /   TLS  ).
+  - Storage Decommissioning.
+    - After reaching the end of its useful life,   AWS   proceeds with decommissioning process that prevents from exposing customer data.
+      - Including degaussing and physically destroying magnetic storage drives.
+    -   DoD 5220.22-M  ,   NIST 800-88  .
+  - Network Security.
+    -   HTTPS   with use of   SSL   /   TLS  .
+    -   VPC   for private networking.
+    - Ability to use   IPSec VPN   that provide an encrypted tunnel between   VPC   and your   DC   on-premises.
+    - Logically   AWS   Production Network is segregated from the   Amazon   Corporate network by means of complex set of network security / segregation devices.
+      - It means that   Amazon.com   and   AmazonAWS.com   are different networks.
+  - Network Monitoring and Protection.
+    - DDoS.
+    - MITM.
+    - IP Spoofing.
+      -   AWS  -controlled, host-based firewall infrastructure will not permit an instance to sent any traffic from address different than it owns.
+    - Port Scanning.
+      - Unauthorized port scans done by you are violation of   AWS   Acceptable Use Policy.
+      -   You have to ask first for permissions to do a vulnerability scan first  .
+    - Packet Sniffing by other tenants.
+  - AWS Credentials.
+    - Passwords (  IAM   users and   AWS   root accounts).
+    - MFA.
+    - Access Keys.
+    - Key Pairs (  SSH   login,   CloudFront   signed URLs).
+    - X.509 Certificates (e.g.   SSL   / signing   SOAP  ).
+  - AWS Trusted Advisor.
+    - It inspects your   AWS   environment and makes recommendations when opportunities exist.
+      - Save money.
+      - Improve performance.
+      - Close security gaps.
+      - It provides alerts on common security issues.
+    - Automated way of doing a review from   AWS   architects done manually.
+  - Instance Isolation.
+    - Different instances on the same physical machine are isolated via   Xen   hypervisor.
+      - In addition   AWS   firewall resides between the physical network interface and virtual interface, within hypervisor layer - so network-wise they're isolated.
+      - There is no way to workaround it.
+    - The same goes for memory (  RAM  ).
+    - No access to raw disks devices, instead you will see virtualized disks.
+      - It automatically resets every block of storage used by customer previously, before reusing it.
+  - Other Considerations.
+    - Guest OS.
+      - Only you have access to the administration and control over accounts, services and applications.
+    - Encrypting is a good practice,   AWS   allows for it - however it is available for more powerful instances (M, C, R, G).
+    - Firewall.
+    -   AWS   provides a complete solution, mandatory inbound firewall is configured in a deny-all mode and you must to open ports needed to allow inbound traffic.
+    -   ELB  .
+      -   SSL   termination on the load balancer is supported.
+      - Allows to identify the originating IP address of client connecting to your servers, whether you're using   HTTP   /   HTTPS   or   TCP  .
+    -   Direct Connect  .
+      - You can bypass internet service provides in your network path, even your equipment deployed in the location supported by   AWS   in order to cross-connect.
+      - Using   802.1q VLAN   (industry standard) that can be partitioned into multiple   virtual interfaces  , which allows to reuse the same connection to access public resources like   S3   or public   EC2   addresses.
+        - Still preserving private-public network separation.
+
+## Well Architected Framework
+
+- Paper: https://d0.awsstatic.com/whitepapers/architecture/AWS_Well-Architected_Framework.pdf
+  - Developed by the *SA* team based on their experience with *AWS customers*.
+  - Set of questions that allows evaluate how good your system is designed in comparison to *AWS* guidelines.
+  - Pillars of *WAF*:
+    - Each pillar consists of:
+      - Design Principles
+      - Definition
+      - Best Practices and Questions
+      - Key *AWS* Services
+    - General Design Principles:
+      - Stop guessing your capacity needs. Measure!
+      - Test systems at production scale.
+      - Lower the risk of architecture change.
+      - Automate to make architectural experimentation easier.
+      - Allow for evolutionary architecture.
+    - 5 pillars:
+      - Most important pillar for us - *Security*:
+        - Design Principles:
+          - Apply security at all layers (no only at e.g. firewall).
+          - Enable traceability.
+          - Automate responses to security events.
+          - Focus on securing your security.
+          - Automate security best practices (e.g. harden *OS* and use as the base *AMI*).
+        - *AWS* Shared Responsibility Model.
+          - Customer is responsible for security in the cloud.
+          - *AWS* is responsible for security of the cloud.
+        - Definition:
+          - Data Protection
+            - Classify your organization data into segments based on availability: public / private / partial.
+              - You have full control over your data.
+            - Encrypt everything - in transit / on rest, if not possible on client.
+              - *AWS* makes it easier for you to encrypt your data and manage keys, including key rotation.
+            - Detailed logging is available that contains important content.
+              - Designed for exceptional resiliency for storage (11x9 for durability of *S3*).
+              - Versions can protect your data, from accidental overwrites, deletes and similar harm.
+            - *AWS* never initiates the movement of data between regions. It will remain unless customer explicitly enable a feature that does that.
+            - Questions:
+              - How do you encrypt data at rest?
+              - How do you encrypt data in transit?
+          - Privilege Management
+            - Only authorized and authenticated users are able to access your resources, and only in a manner that is intended.
+            - *ACLs*, role based access controls, password management.
+            - Questions:
+              - How do you protect access to and use of *AWS* root account?
+              - How do you define roles and responsibilities of system users to control human access to *AWS Management Console* and *AWS API*?
+              - How do you limit automated access to *AWS* resources?
+              - How do you manage keys and credentials?
+          - Infrastructure Protection
+            - *VPC* level protection mostly, because everything else (physical stuff) is taken care by *AWS*.
+            - Questions:
+              - How do you enforce network and host-level boundary protection?
+              - How do you enforce *AWS* service level protection?
+              - How do you protect the OS integrity of your *AWS* machines?
+          - Detective Controls
+            - Tools and detective controls that can be used to detect or identify a security breach.
+              - AWS CloudTrail
+              - AWS CloudWatch
+              - AWS Config
+              - AWS S3 (access logs to *S3* buckets, *S3* websites and *ELB*).
+              - AWS Glacier
+            - Questions:
+              - How do you capture and analyze *AWS* logs?
+        - Key *AWS* Services:
+          - Encrypting at rest - *EBS*, *S3*, *RDS*.
+          - Encrypting in transit - *ELB*.
+          - Privilege management - *IAM*, *MFA*.
+          - Infrastructure protection - *VPC*.
+          - Detective controls - *CloudTrail*, *CloudWatch*, *Config*.
